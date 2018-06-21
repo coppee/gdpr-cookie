@@ -126,6 +126,14 @@ The name of the cookie to write to. Any characters forbidden in a cookie name (a
 
 Whether or not to reload the page after the user presses the accept button. Default is `false`.
 
+### allowUnadvanced
+
+Whether or not to allow hiding the checkboxes after showing them. Default is `false`.
+
+### switchAdvanced
+
+When `true`, it will hide the intro text when showing the checkboxes (i.e. switch between the two). Default is `false`.
+
 ### acceptBtnLabel
 
 Label for the accept button. No html is allowed. Default is `"Accept cookies"`.
@@ -133,6 +141,10 @@ Label for the accept button. No html is allowed. Default is `"Accept cookies"`.
 ### advancedBtnLabel
 
 Label for the customize button. No html is allowed. Default is `"Customize cookies"`.
+
+### unadvancedBtnLabel
+
+Label for the customize button when the checkboxes are being shown. Only applicable when `allowUnadvanced` is `true`, otherwise ignored. No html is allowed. Default is `"Back"`.
 
 ### customShowMessage
 
@@ -145,6 +157,10 @@ Callback function for when to hide the popup, if you're not satisfied with the d
 ### customShowChecks
 
 Callback function for when to show the checkboxes, if you're not satisfied with the default `slideDown`.
+
+### customHideChecks
+
+Callback function for when to hide the checkboxes, if you're not satisfied with the default `slideUp`.
 
 ### cookieTypes
 

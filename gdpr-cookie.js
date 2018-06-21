@@ -36,7 +36,7 @@
 }(this, function($) {
     "use strict";
     
-    var settings, showing = false, display;
+    var settings, showing = false, display, isAdvanced = false;
 
     var setCookie = function(name, value, expires) {
         var d = new Date();
@@ -126,11 +126,15 @@
             expires: 30,
             cookieName: "cookieControlPrefs",
             acceptReload: false,
+            allowUnadvanced: false,
+            switchAdvanced: false,
             acceptBtnLabel: "Accept cookies",
             advancedBtnLabel: "Customize cookies",
+            unadvancedBtnLabel: "Back",
             customShowMessage: undefined,
             customHideMessage: undefined,
-            customShowChecks: undefined
+            customShowChecks: undefined,
+            customHideChecks: undefined
         };
 
         // Set defaults
@@ -174,6 +178,7 @@
         
         var elements = {
             container: undefined,
+            introContainer: undefined,
             types: undefined,
             typesContainer: undefined,
             buttons: { 
@@ -268,23 +273,65 @@
             
             // Toggle advanced cookie options
             var advancedClick = function() {
-                elements.buttons.advanced.prop("disabled", true);
+                var showAdvanced = function() {
+                    if (!settings.allowUnadvanced) {
+                        elements.buttons.advanced.prop("disabled", true);
+                    }
+
+                    if ($.isFunction(settings.customShowChecks)) {
+                        settings.customShowChecks.call(elements.typesContainer, elements.typesContainer, elements.introContainer);
+                    }
+                    else {
+                        if (settings.switchAdvanced) {
+                            elements.introContainer.slideUp("fast");
+                        }
+                        elements.typesContainer.slideDown("fast");
+                    }
+
+                    isAdvanced = true;
+                    if (settings.allowUnadvanced && settings.unadvancedBtnLabel && settings.advancedBtnLabel !== settings.unadvancedBtnLabel) {  
+                        elements.buttons.advanced.text(settings.unadvancedBtnLabel);
+                    }
+
+                    // Trigger advanced show event
+                    body.trigger("gdpr:advanced");
+                };
+                var hideAdvanced = function() {
+                    if ($.isFunction(settings.customHideChecks)) {
+                        settings.customHideChecks.call(elements.typesContainer, elements.typesContainer, elements.introContainer);
+                    }
+                    else {
+                        if (settings.switchAdvanced) {
+                            elements.introContainer.slideDown("fast");
+                        }
+                        elements.typesContainer.slideUp("fast");
+                    }
+
+                    isAdvanced = false;
+                    if (settings.allowUnadvanced && settings.unadvancedBtnLabel && settings.advancedBtnLabel !== settings.unadvancedBtnLabel) {  
+                        elements.buttons.advanced.text(settings.advancedBtnLabel);
+                    }
+                    
+                    // Trigger advanced show event
+                    body.trigger("gdpr:unadvanced");
+                };
                 
-                if ($.isFunction(settings.customShowChecks)) {
-                    settings.customShowChecks.call(elements.typesContainer, elements.typesContainer);
+                if (isAdvanced) {
+                    if (settings.allowUnadvanced) {
+                        hideAdvanced();
+                    }
                 }
                 else {
-                    elements.typesContainer.slideDown("fast");
+                    showAdvanced();
                 }
-                
-                // Trigger advanced show event
-                body.trigger("gdpr:advanced");
             };
             
             // Build cookie message to display later on
             var cookieMessage = (elements.container = $("<div class=gdprcookie>")).append([
-                $("<h1/>", { text: settings.title }).get(0),
-                $("<p/>", { html: settings.message }).get(0),
+                (elements.introContainer = $("<div class=gdprcookie-intro/>")).append([
+                    $("<h1/>", { text: settings.title }).get(0),
+                    $("<p/>", { html: settings.message }).get(0)
+                ]).get(0),
                 (elements.typesContainer = $("<div class=gdprcookie-types/>")).hide().append([
                     $("<h2/>", { text: settings.subtitle }).get(0),
                     elements.types.get(0)
