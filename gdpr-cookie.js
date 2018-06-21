@@ -212,11 +212,14 @@
                     if (!field.type || !field.value) {
                         return;
                     }
-                    var isEssential = field.value === "essential";
-                    if(myCookiePrefs !== undefined) {
-                        var isChecked = myCookiePrefs.includes(field.value);
-                    } else {
-                        var isChecked = field.checked === true;
+                    var isEssential = field.value === "essential",
+                        isChecked;
+                    
+                    if (Array.isArray(myCookiePrefs)) {
+                        isChecked = myCookiePrefs.indexOf(field.value) >= 0;
+                    }
+                    else {
+                        isChecked = field.checked === true;
                     }
                     
                     var input = $("<input/>", {
@@ -226,7 +229,7 @@
                         value: field.value,
 
                         // The essential cookies checkbox is checked and cannot be unchecked
-                        checked: (isEssential || isChecked),
+                        checked: isEssential || isChecked,
                         disabled: isEssential
                     });
                     
