@@ -110,6 +110,10 @@ The title that will be rendered above the checkboxes after pressing the customiz
 
 A passage of text that can serve as an introduction and a means to include a link to your privacy policy. Html is allowed. Default is a long text. You'll want to set this option for sure.
 
+### submessage
+
+A secondary passage of text that is rendered before the checkboxes. Html is allowed. Default is an empty string.
+
 ### delay
 
 A delay in milliseconds to wait until displaying the popup after the page has loaded (meaning the `DOMContentReady` event, a.k.a. jQuery's document-ready). This delay is not applied when manually displaying the popup. You can supply a value of `0` to disable any delay. The default is 2000.

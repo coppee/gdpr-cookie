@@ -122,6 +122,7 @@
             title: "Cookies & privacy",
             subtitle: "Select cookies to accept",
             message: "Cookies enable you to use shopping carts and to personalize your experience on our sites, tell us which parts of our websites people have visited, help us measure the effectiveness of ads and web searches, and give us insights into user behaviour so we can improve our communications and products.",
+            submessage: "",
             delay: 2000,
             expires: 30,
             cookieName: "cookieControlPrefs",
@@ -334,6 +335,7 @@
                 ]).get(0),
                 (elements.typesContainer = $("<div class=gdprcookie-types/>")).hide().append([
                     $("<h2/>", { text: settings.subtitle }).get(0),
+                    $("<p/>", { html: settings.submessage }).get(0),
                     elements.types.get(0)
                 ]).get(0),
                 $("<div class=gdprcookie-buttons/>").append([
