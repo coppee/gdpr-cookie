@@ -130,6 +130,14 @@ The name of the cookie to write to. Any characters forbidden in a cookie name (a
 
 Whether or not to reload the page after the user presses the accept button. Default is `false`.
 
+### acceptBeforeAdvanced
+
+Controls which cookies are accepted before the visitor has seen the checkboxes. This can be an array of valid cookie types, or a string with a single cookie type. If this value is falsey, it will assume whatever the checked checkboxes are. Default is `[ "essential" ]`.
+
+### acceptAfterAdvanced
+
+Controls which cookies are accepted after the visitor has seen the checkboxes, which can be enabled by `allowUnadvanced`. This can be an array of valid cookie types, or a string with a single cookie type. If this value is falsey, it will assume whatever the checked checkboxes are. Default is `[ "essential" ]`.
+
 ### allowUnadvanced
 
 Whether or not to allow hiding the checkboxes after showing them. Default is `false`.

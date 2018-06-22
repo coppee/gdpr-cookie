@@ -36,7 +36,7 @@
 }(this, function($) {
     "use strict";
     
-    var settings, showing = false, display, isAdvanced = false;
+    var settings, showing = false, display, isAdvanced = false, seenAdvanced = false;
 
     var setCookie = function(name, value, expires) {
         var d = new Date();
@@ -127,6 +127,8 @@
             expires: 30,
             cookieName: "cookieControlPrefs",
             acceptReload: false,
+            acceptBeforeAdvanced: [ "essential" ],
+            acceptAfterAdvanced: [ "essential" ],
             allowUnadvanced: false,
             switchAdvanced: false,
             acceptBtnLabel: "Accept cookies",
@@ -165,6 +167,22 @@
         
         // Coerce into a string and valid cookie name
         settings.cookieName = validateCookieName(String(settings.cookieName || "")) || "cookieControlPrefs";
+        
+        // Coerce acceptBeforeAdvanced and acceptAfterAdvanced into arrays of strings, that exist in settings.cookieTypes[].value
+        var coerce = (function() {
+            var values = settings.cookieTypes.map(function(cookieType) { return cookieType.value; }),
+                exists = function(item) { return values.indexOf(item) >= 0; };
+            
+            return function(setting) {
+                // Convert a single string into an array of 1
+                setting = typeof setting === "string" ? [ setting ] : setting;
+
+                // If it's an array, make sure it only contains known cookie types
+                return Array.isArray(setting) ? setting.map(String).filter(exists) : undefined;
+            };
+        }());
+        settings.acceptBeforeAdvanced = coerce(settings.acceptBeforeAdvanced);
+        settings.acceptAfterAdvanced = coerce(settings.acceptAfterAdvanced);
         
         $(function() { display(); });
     };
@@ -261,11 +279,22 @@
             
             // When accept button is clicked drop cookie
             var acceptClick = function() {
+                var prefsFromCheckboxes = function() {
+                    return elements.allChecks
+                        .filter(function() { return this.checked || this.disabled; })
+                        .map(function() { return this.value; })
+                        .get();
+                };
+                var prefsOutsideAdvanced = function(where) {
+                    var setting = "accept" + where + "Advanced";
+                    return Array.isArray(settings[setting]) ? settings[setting] : prefsFromCheckboxes();
+                };
+                
                 // Hide the cookie message
                 hide(true);
 
                 // Save user cookie preferences (in a cookie!)
-                var prefs = $.map(elements.allChecks.filter(function() { return this.checked || this.disabled; }), function(checkbox) { return checkbox.value; });
+                var prefs = isAdvanced ? prefsFromCheckboxes() : prefsOutsideAdvanced(seenAdvanced ? "After" : "Before");
                 setCookie(settings.cookieName, JSON.stringify(prefs), settings.expires);
 
                 // Trigger cookie accept event
@@ -289,7 +318,7 @@
                         elements.typesContainer.slideDown("fast");
                     }
 
-                    isAdvanced = true;
+                    isAdvanced = seenAdvanced = true;
                     if (settings.allowUnadvanced && settings.unadvancedBtnLabel && settings.advancedBtnLabel !== settings.unadvancedBtnLabel) {  
                         elements.buttons.advanced.text(settings.unadvancedBtnLabel);
                     }
@@ -347,6 +376,7 @@
             var show = function() {
                 body.append(cookieMessage);
                 showing = true;
+                isAdvanced = seenAdvanced = false;
                 if ($.isFunction(settings.customShowMessage)) {
                     settings.customShowMessage.call(elements.container, elements.container);
                 }
