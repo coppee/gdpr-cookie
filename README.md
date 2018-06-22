@@ -98,90 +98,39 @@ Alternatively, you can put the settings in a global variable. This is useful whe
 
 You can also combine the two, to keep functional settings separate from localization.
 
-### title
+| Setting                | Description |
+|:---------------------- |:----------- |
+| `title`                | The title that will be rendered at the very start of the popup. It'll be rendered as a `<h1>` tag. No html is allowed. Set to `null`/`false`/`""` to remove it. Default is `"Cookies & privacy"`. |
+| `subtitle`             | The title that will be rendered above the checkboxes after pressing the customize button. It'll be rendered as a `<h2>` tag. No html is allowed. Set to `null`/`false`/`""` to remove it. Default is `"Select cookies to accept"`. |
+| `message`              | A passage of text that can serve as an introduction and a means to include a link to your privacy policy. Html is allowed. Set to `null`/`false`/`""` to remove it. Default is a long text. You'll want to set this option for sure. |
+| `submessage`           | A secondary passage of text that is rendered before the checkboxes. Html is allowed. Default is an empty string and won't render the element at all. |
+| `delay`                | A delay in milliseconds to wait until displaying the popup after the page has loaded (meaning the `DOMContentReady` event, a.k.a. jQuery's document-ready). This delay is not applied when manually displaying the popup. You can supply a value of `0` to disable any delay. The default is 2000. |
+| `expires`              | The time in days for the cookie expiry. This means the cookie that remembers what the visitor has chosen. Cookies *you* set, are unaffected. Default is 30 days. |
+| `cookieName`           | The name of the cookie to write to. Any characters forbidden in a cookie name (as per the specification) will automatically be removed. Default is `"cookieControlPrefs"`. |
+| `acceptReload`         | Whether or not to reload the page after the user presses the accept button. Default is `false`. |
+| `acceptBeforeAdvanced` | Controls which cookies are accepted before the visitor has seen the checkboxes. This can be an array of valid cookie types, or a string with a single cookie type. If this value is falsey, it will assume whatever the checked checkboxes are. Default is `[ "essential" ]`. |
+| `acceptAfterAdvanced`  | Controls which cookies are accepted after the visitor has seen the checkboxes, which can be enabled by `allowUnadvanced`. This can be an array of valid cookie types, or a string with a single cookie type. If this value is falsey, it will assume whatever the checked checkboxes are. Default is `[ "essential" ]`. |
+| `allowUnadvanced`      | Whether or not to allow hiding the checkboxes after showing them. Default is `false`. |
+| `switchAdvanced`       | When `true`, it will hide the intro text when showing the checkboxes (i.e. switch between the two). Default is `false`. |
+| `acceptBtnLabel`       | Label for the accept button. No html is allowed. Default is `"Accept cookies"`. |
+| `advancedBtnLabel`     | Label for the customize button. No html is allowed. Default is `"Customize cookies"`. |
+| `unadvancedBtnLabel`   | Label for the customize button when the checkboxes are being shown. Only applicable when `allowUnadvanced` is `true`, otherwise ignored. No html is allowed. Default is `"Back"`. |
+| `customShowMessage`    | Callback function for when to show the popup, if you're not satisfied with the default `fadeIn`. |
+| `customHideMessage`    | Callback function for when to hide the popup, if you're not satisfied with the default `fadeOut`. If you supply this callback, you are responsible for removing the popup from the DOM! |
+| `customShowChecks`     | Callback function for when to show the checkboxes, if you're not satisfied with the default `slideDown`. |
+| `customHideChecks`     | Callback function for when to hide the checkboxes, if you're not satisfied with the default `slideUp`. |
+| `cookieTypes`          | An array of objects containing the types of cookies you need to specify. As for each object, see CookieType below. |
 
-The title that will be rendered at the very start of the popup. It'll be rendered as a `<h1>` tag. No html is allowed. Set to `null`/`false`/`""` to remove it. Default is `"Cookies & privacy"`.
+## CookieType
 
-### subtitle
+Each object in the `settings.cookieType` array can have the following fields.
 
-The title that will be rendered above the checkboxes after pressing the customize button. It'll be rendered as a `<h2>` tag. No html is allowed. Set to `null`/`false`/`""` to remove it. Default is `"Select cookies to accept"`.
-
-### message
-
-A passage of text that can serve as an introduction and a means to include a link to your privacy policy. Html is allowed. Set to `null`/`false`/`""` to remove it. Default is a long text. You'll want to set this option for sure.
-
-### submessage
-
-A secondary passage of text that is rendered before the checkboxes. Html is allowed. Default is an empty string and won't render the element at all.
-
-### delay
-
-A delay in milliseconds to wait until displaying the popup after the page has loaded (meaning the `DOMContentReady` event, a.k.a. jQuery's document-ready). This delay is not applied when manually displaying the popup. You can supply a value of `0` to disable any delay. The default is 2000.
-
-### expires
-
-The time in days for the cookie expiry. This means the cookie that remembers what the visitor has chosen. Cookies *you* set, are unaffected. Default is 30 days.
-
-### cookieName
-
-The name of the cookie to write to. Any characters forbidden in a cookie name (as per the specification) will automatically be removed. Default is `"cookieControlPrefs"`.
-
-### acceptReload
-
-Whether or not to reload the page after the user presses the accept button. Default is `false`.
-
-### acceptBeforeAdvanced
-
-Controls which cookies are accepted before the visitor has seen the checkboxes. This can be an array of valid cookie types, or a string with a single cookie type. If this value is falsey, it will assume whatever the checked checkboxes are. Default is `[ "essential" ]`.
-
-### acceptAfterAdvanced
-
-Controls which cookies are accepted after the visitor has seen the checkboxes, which can be enabled by `allowUnadvanced`. This can be an array of valid cookie types, or a string with a single cookie type. If this value is falsey, it will assume whatever the checked checkboxes are. Default is `[ "essential" ]`.
-
-### allowUnadvanced
-
-Whether or not to allow hiding the checkboxes after showing them. Default is `false`.
-
-### switchAdvanced
-
-When `true`, it will hide the intro text when showing the checkboxes (i.e. switch between the two). Default is `false`.
-
-### acceptBtnLabel
-
-Label for the accept button. No html is allowed. Default is `"Accept cookies"`.
-
-### advancedBtnLabel
-
-Label for the customize button. No html is allowed. Default is `"Customize cookies"`.
-
-### unadvancedBtnLabel
-
-Label for the customize button when the checkboxes are being shown. Only applicable when `allowUnadvanced` is `true`, otherwise ignored. No html is allowed. Default is `"Back"`.
-
-### customShowMessage
-
-Callback function for when to show the popup, if you're not satisfied with the default `fadeIn`.
-
-### customHideMessage
-
-Callback function for when to hide the popup, if you're not satisfied with the default `fadeOut`. If you supply this callback, you are responsible for removing the popup from the DOM!
-
-### customShowChecks
-
-Callback function for when to show the checkboxes, if you're not satisfied with the default `slideDown`.
-
-### customHideChecks
-
-Callback function for when to hide the checkboxes, if you're not satisfied with the default `slideUp`.
-
-### cookieTypes
-
-An array of objects containing the types of cookies you need to specify. Each object has three properties:
-
-`type` - A title to show on the label next to the checkbox.  
-`value` - A unique name for the type of cookie (e.g. `"essential"`, `"marketing"`, etc).  
-`description` - An optional description that will be rendered in the `title` attribute of the correcponding `<label>`.
-`checked` - A boolean determining if the cookie type is checked by default.
+| Field         | Description |
+|:------------- |:----------- |
+| `type`        | A title to show on the label next to the checkbox. |
+| `value`       | A unique name for the type of cookie (e.g. `"essential"`, `"marketing"`, etc). |
+| `description` | An optional description that will be rendered in the `title` attribute of the correcponding `<label>`. |
+| `checked`     | A boolean determining if the cookie type is checked by default. |
 
 ## Events
 
@@ -195,29 +144,21 @@ $("body").on(eventName, function() {
 });
 ```
 
-### gdpr:show
-
-Triggered when the popup is shown. Either manually or on page load.
-
-### gdpr:accept
-
-Triggered when the visitor presses the accept button.
-
-### gdpr:advanced
-
-Triggered when the visitor presses the customize button.
+| Event name        | Description |
+|:----------------- |:----------- |
+| `gdpr:show`       | Triggered when the popup is shown. Either manually or on page load. |
+| `gdpr:accept`     | Triggered when the visitor presses the accept button. |
+| `gdpr:advanced`   | Triggered when the visitor presses the advanced button to show the checkboxes. |
+| `gdpr:unadvanced` | Triggered when the visitor presses the advanced button again to hide the checkboxes. |
 
 ## Methods
 
 The following methods exist for some extra control.
 
-### $.gdprcookie.preference()
-
-Returns an array of values, which are the ones specified in `settings.cookieTypes`, that the visitor has chosen to accept. This array is empty when the visitor hasn't pressed the accept button yet.
-
-### $.gdprcookie.display()
-
-Manually displays the popup, e.g. for visitors to change their preferences. It's considered good practice to include a link to this somewhere on your site.
+| Method name                 | Description |
+|:--------------------------- |:----------- |
+| `$.gdprcookie.preference()` | Returns an array of values, which are the ones specified in `settings.cookieTypes`, that the visitor has chosen to accept. This array is empty when the visitor hasn't pressed the accept button yet. |
+| `$.gdprcookie.display()`    | Manually displays the popup, e.g. for visitors to change their preferences. It's considered good practice to include a link to this somewhere on your site. |
 
 ## Cookie
 
