@@ -330,12 +330,12 @@
             // Build cookie message to display later on
             var cookieMessage = (elements.container = $("<div class=gdprcookie>")).append([
                 (elements.introContainer = $("<div class=gdprcookie-intro/>")).append([
-                    $("<h1/>", { text: settings.title }).get(0),
-                    $("<p/>", { html: settings.message }).get(0)
+                    settings.title ? $("<h1/>", { text: settings.title }).get(0) : undefined,
+                    settings.message ? $("<p/>", { html: settings.message }).get(0) : undefined
                 ]).get(0),
                 (elements.typesContainer = $("<div class=gdprcookie-types/>")).hide().append([
-                    $("<h2/>", { text: settings.subtitle }).get(0),
-                    $("<p/>", { html: settings.submessage }).get(0),
+                    settings.subtitle ? $("<h2/>", { text: settings.subtitle }).get(0) : undefined,
+                    settings.submessage ? $("<p/>", { html: settings.submessage }).get(0) : undefined,
                     elements.types.get(0)
                 ]).get(0),
                 $("<div class=gdprcookie-buttons/>").append([

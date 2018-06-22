@@ -100,19 +100,19 @@ You can also combine the two, to keep functional settings separate from localiza
 
 ### title
 
-The title that will be rendered at the very start of the popup. It'll be rendered as a `<h1>` tag. No html is allowed. Default is `"Cookies & privacy"`.
+The title that will be rendered at the very start of the popup. It'll be rendered as a `<h1>` tag. No html is allowed. Set to `null`/`false`/`""` to remove it. Default is `"Cookies & privacy"`.
 
 ### subtitle
 
-The title that will be rendered above the checkboxes after pressing the customize button. It'll be rendered as a `<h2>` tag. No html is allowed. Default is `"Select cookies to accept"`.
+The title that will be rendered above the checkboxes after pressing the customize button. It'll be rendered as a `<h2>` tag. No html is allowed. Set to `null`/`false`/`""` to remove it. Default is `"Select cookies to accept"`.
 
 ### message
 
-A passage of text that can serve as an introduction and a means to include a link to your privacy policy. Html is allowed. Default is a long text. You'll want to set this option for sure.
+A passage of text that can serve as an introduction and a means to include a link to your privacy policy. Html is allowed. Set to `null`/`false`/`""` to remove it. Default is a long text. You'll want to set this option for sure.
 
 ### submessage
 
-A secondary passage of text that is rendered before the checkboxes. Html is allowed. Default is an empty string.
+A secondary passage of text that is rendered before the checkboxes. Html is allowed. Default is an empty string and won't render the element at all.
 
 ### delay
 
