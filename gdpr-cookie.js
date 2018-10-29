@@ -35,8 +35,8 @@
     }
 }(this, function($) {
     "use strict";
-    
-    var settings, showing = false, display, isAdvanced = false, seenAdvanced = false;
+
+    var settings, showing = false, setCookieByBrowsing, display, isAdvanced = false, seenAdvanced = false;
 
     var setCookie = function(name, value, expires) {
         var d = new Date();
@@ -58,14 +58,19 @@
             }
         }
     };
-    
+
     var validateCookieName = function(name) {
         // Cookie name may consist of \u0021-\u007e, excluding whitespace and characters , ; =
         return name.replace(/[^\u0021-\u007e]|[,;=\s]/g, "");
     };
-    
+
     var getPreferences = function() {
         var preferences = getCookie(settings.cookieName);
+
+        if(preferences === 'waitForIt') {
+            return preferences;
+        }
+
         try {
             preferences = JSON.parse(preferences);
         }
@@ -76,21 +81,21 @@
         if (!Array.isArray(preferences) || !preferences.length) {
             return;
         }
-        
+
         var knownTypes = settings.cookieTypes.map(function(type) {
             return type.value;
         });
         preferences = preferences.filter(function(pref) {
             return knownTypes.indexOf(pref) >= 0;
         });
-        
+
         return preferences;
     };
-    
+
     $.gdprcookie = { };
-        
+
     $.gdprcookie.init = function(options) {
-        
+
         // Define defaults
         var defaultSettings = {
             cookieTypes: [
@@ -127,6 +132,8 @@
             expires: 30,
             cookieName: "cookieControlPrefs",
             acceptReload: false,
+            acceptCookieByBrowsing: false,
+            acceptAfterBrowsing: [ "essential" ],
             acceptBeforeAdvanced: [ "essential" ],
             acceptAfterAdvanced: [ "essential" ],
             allowUnadvanced: false,
@@ -142,16 +149,16 @@
 
         // Set defaults
         settings = $.extend(defaultSettings, window.GdprCookieSettings, options);
-        
+
         // Coerce into a string because this is poured into innerHTML
         settings.message = String(settings.message);
-        
+
         // Coerce into a positive number because it is passed to setTimeout
         settings.delay = Math.max(0, +settings.delay) || 0;
-        
+
         // Coerce into a positive whole number between 0 and 730 (2-ish years), to ensure a well-formed cookie value
-        settings.expires = Math.round(Math.min(Math.max(0, +settings.expires), 730)) || 0; 
-        
+        settings.expires = Math.round(Math.min(Math.max(0, +settings.expires), 730)) || 0;
+
         // Coerce cookieTypes into an array containing plain objects
         if (Array.isArray(settings.cookieTypes)) {
             settings.cookieTypes = settings.cookieTypes.filter(function(cookieType) {
@@ -164,15 +171,15 @@
         else {
             settings.cookieTypes = defaultSettings.cookieTypes;
         }
-        
+
         // Coerce into a string and valid cookie name
         settings.cookieName = validateCookieName(String(settings.cookieName || "")) || "cookieControlPrefs";
-        
+
         // Coerce acceptBeforeAdvanced and acceptAfterAdvanced into arrays of strings, that exist in settings.cookieTypes[].value
         var coerce = (function() {
             var values = settings.cookieTypes.map(function(cookieType) { return cookieType.value; }),
                 exists = function(item) { return values.indexOf(item) >= 0; };
-            
+
             return function(setting) {
                 // Convert a single string into an array of 1
                 setting = typeof setting === "string" ? [ setting ] : setting;
@@ -181,33 +188,63 @@
                 return Array.isArray(setting) ? setting.map(String).filter(exists) : undefined;
             };
         }());
+
+        settings.acceptAfterBrowsing = coerce(settings.acceptAfterBrowsing);
         settings.acceptBeforeAdvanced = coerce(settings.acceptBeforeAdvanced);
         settings.acceptAfterAdvanced = coerce(settings.acceptAfterAdvanced);
-        
-        $(function() { display(); });
+
+        $(function() {
+            setCookieByBrowsing();
+            display();
+        });
     };
-    
+
+    setCookieByBrowsing = function() {
+
+        var setWaitingCookie = function() {
+            setCookie(settings.cookieName, 'waitForIt');
+        }
+
+        var setAcceptedByBrowsingCookie = function() {
+            var prefs = Array.isArray(settings.acceptAfterBrowsing) ? settings.acceptAfterBrowsing : null;
+
+            if(prefs) {
+                setCookie(settings.cookieName, JSON.stringify(prefs), settings.expires);
+            }
+        }
+
+        if(settings.acceptCookieByBrowsing) {
+            var preferences = getPreferences();
+
+            if(preferences == 'waitForIt') {
+                setAcceptedByBrowsingCookie()
+            } else if (!preferences) {
+                setWaitingCookie()
+            }
+        }
+    }
+
     display = function(alwaysShow) {
         if (showing) {
             return;
         }
-        
+
         var body = $("body"),
             myCookiePrefs = getPreferences();
-        
+
         var elements = {
             container: undefined,
             introContainer: undefined,
             types: undefined,
             typesContainer: undefined,
-            buttons: { 
-                accept: undefined, 
-                advanced: undefined 
+            buttons: {
+                accept: undefined,
+                advanced: undefined
             },
             allChecks: [ ],
             nonessentialChecks: [ ]
         };
-            
+
         var hide = function(canreload) {
             if (elements.container) {
                 if ($.isFunction(settings.customHideMessage)) {
@@ -225,7 +262,7 @@
                 document.location.reload();
             }
         };
-        
+
         if (!Array.isArray(myCookiePrefs) || !myCookiePrefs.length) {
             myCookiePrefs = undefined;
         }
@@ -238,14 +275,14 @@
                     }
                     var isEssential = field.value === "essential",
                         isChecked;
-                    
+
                     if (Array.isArray(myCookiePrefs)) {
                         isChecked = myCookiePrefs.indexOf(field.value) >= 0;
                     }
                     else {
                         isChecked = field.checked === true;
                     }
-                    
+
                     var input = $("<input/>", {
                         type: "checkbox",
                         id: "gdpr-cookietype-" + index,
@@ -256,12 +293,12 @@
                         checked: isEssential || isChecked,
                         disabled: isEssential
                     });
-                    
+
                     elements.allChecks.push(input.get(0));
                     if (!isEssential) {
                         elements.nonessentialChecks.push(input.get(0));
                     }
-                    
+
                     var label = $("<label/>", {
                         "for": "gdpr-cookietype-" + index,
                         text: field.type,
@@ -276,7 +313,7 @@
             );
             elements.allChecks = $(elements.allChecks);
             elements.nonessentialChecks = $(elements.nonessentialChecks);
-            
+
             // When accept button is clicked drop cookie
             var acceptClick = function() {
                 var prefsFromCheckboxes = function() {
@@ -289,7 +326,7 @@
                     var setting = "accept" + where + "Advanced";
                     return Array.isArray(settings[setting]) ? settings[setting] : prefsFromCheckboxes();
                 };
-                
+
                 // Hide the cookie message
                 hide(true);
 
@@ -300,7 +337,7 @@
                 // Trigger cookie accept event
                 body.trigger("gdpr:accept");
             };
-            
+
             // Toggle advanced cookie options
             var advancedClick = function() {
                 var showAdvanced = function() {
@@ -319,7 +356,7 @@
                     }
 
                     isAdvanced = seenAdvanced = true;
-                    if (settings.allowUnadvanced && settings.unadvancedBtnLabel && settings.advancedBtnLabel !== settings.unadvancedBtnLabel) {  
+                    if (settings.allowUnadvanced && settings.unadvancedBtnLabel && settings.advancedBtnLabel !== settings.unadvancedBtnLabel) {
                         elements.buttons.advanced.text(settings.unadvancedBtnLabel);
                     }
 
@@ -338,14 +375,14 @@
                     }
 
                     isAdvanced = false;
-                    if (settings.allowUnadvanced && settings.unadvancedBtnLabel && settings.advancedBtnLabel !== settings.unadvancedBtnLabel) {  
+                    if (settings.allowUnadvanced && settings.unadvancedBtnLabel && settings.advancedBtnLabel !== settings.unadvancedBtnLabel) {
                         elements.buttons.advanced.text(settings.advancedBtnLabel);
                     }
-                    
+
                     // Trigger advanced show event
                     body.trigger("gdpr:unadvanced");
                 };
-                
+
                 if (isAdvanced) {
                     if (settings.allowUnadvanced) {
                         hideAdvanced();
@@ -355,7 +392,7 @@
                     showAdvanced();
                 }
             };
-            
+
             // Build cookie message to display later on
             var cookieMessage = (elements.container = $("<div class=gdprcookie>")).append([
                 (elements.introContainer = $("<div class=gdprcookie-intro/>")).append([
@@ -372,7 +409,7 @@
                     (elements.buttons.advanced = $("<button/>", { type: "button", text: settings.advancedBtnLabel, click: advancedClick })).get(0)
                 ]).get(0)
             ]);
-            
+
             var show = function() {
                 body.append(cookieMessage);
                 showing = true;
@@ -383,11 +420,11 @@
                 else {
                     elements.container.hide().fadeIn("slow");
                 }
-                
+
                 // Trigger container show event
                 body.trigger("gdpr:show");
             };
-            
+
             if (!settings.delay || alwaysShow) {
                 show();
             }
@@ -399,7 +436,7 @@
             hide(false);
         }
     };
-    
+
     $.gdprcookie.display = function() {
         display(true);
     };
@@ -407,7 +444,7 @@
     // Method to check if user cookie preference exists
     $.gdprcookie.preference = function(value) {
         var preferences = getPreferences();
-        
+
         if (value === "essential") {
             return true;
         }
@@ -419,7 +456,7 @@
         }
         return preferences;
     };
-    
+
     // Protection against malicious scripts, e.g. monkey patching
     $.gdprcookie = Object.freeze($.gdprcookie);
 
