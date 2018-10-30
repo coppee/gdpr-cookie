@@ -131,6 +131,7 @@
             delay: 2000,
             expires: 30,
             cookieName: "cookieControlPrefs",
+            className: "c-gdprcookie",
             acceptReload: false,
             acceptCookieByBrowsing: false,
             acceptAfterBrowsing: [ "essential" ],
@@ -394,17 +395,17 @@
             };
 
             // Build cookie message to display later on
-            var cookieMessage = (elements.container = $("<div class=gdprcookie>")).append([
-                (elements.introContainer = $("<div class=gdprcookie-intro/>")).append([
+            var cookieMessage = (elements.container = $("<div class=" + settings.className + ">")).append([
+                (elements.introContainer = $("<div class=" + settings.className + "__intro/>")).append([
                     settings.title ? $("<h1/>", { text: settings.title }).get(0) : undefined,
                     settings.message ? $("<p/>", { html: settings.message }).get(0) : undefined
                 ]).get(0),
-                (elements.typesContainer = $("<div class=gdprcookie-types/>")).hide().append([
+                (elements.typesContainer = $("<div class=" + settings.className + "__types/>")).hide().append([
                     settings.subtitle ? $("<h2/>", { text: settings.subtitle }).get(0) : undefined,
                     settings.submessage ? $("<p/>", { html: settings.submessage }).get(0) : undefined,
                     elements.types.get(0)
                 ]).get(0),
-                $("<div class=gdprcookie-buttons/>").append([
+                $("<div class=" + settings.className + "__buttons/>").append([
                     (elements.buttons.accept = $("<button/>", { type: "button", text: settings.acceptBtnLabel, click: acceptClick })).get(0),
                     (elements.buttons.advanced = $("<button/>", { type: "button", text: settings.advancedBtnLabel, click: advancedClick })).get(0)
                 ]).get(0)
