@@ -1,9 +1,9 @@
 {
   "name": "gdpr-cookie",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A jQuery plugin to manage cookie settings in compliance with EU law",
   "browser": "gdpr-cookie.js",
-  "repository": "git+https://github.com/thany/gdpr-cookie.git",
+  "repository": "git+https://github.com/coppee/gdpr-cookie.git",
   "keywords": [
     "gdpr",
     "cookie",
@@ -11,10 +11,10 @@
     "jquery",
     "plugin"
   ],
-  "author": "Martijn Saly (https://github.com/thany)",
+  "author": "Martijn Saly (https://github.com/thany), Jérôme Coppée (https://github.com/coppee)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/thany/gdpr-cookie/issues"
+    "url": "https://github.com/coppee/gdpr-cookie/issues"
   },
-  "homepage": "https://github.com/thany/gdpr-cookie#readme"
+  "homepage": "https://github.com/coppee/gdpr-cookie#readme"
 }
