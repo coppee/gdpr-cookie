@@ -214,6 +214,10 @@
 
             if(prefs) {
                 setCookie(settings.cookieName, JSON.stringify(prefs), settings.expires)
+
+                if (settings.acceptReload) {
+                    document.location.reload()
+                }
             }
         }
 
