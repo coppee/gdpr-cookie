@@ -64,12 +64,14 @@
         return name.replace(/[^\u0021-\u007e]|[,;=\s]/g, "");
     };
 
+    var getState = function() {
+        var state = getCookie(settings.cookieStateName)
+
+        return state
+    }
+
     var getPreferences = function() {
         var preferences = getCookie(settings.cookieName);
-
-        if(preferences === 'waitForIt') {
-            return preferences;
-        }
 
         try {
             preferences = JSON.parse(preferences);
@@ -130,7 +132,8 @@
             submessage: "",
             delay: 2000,
             expires: 30,
-            cookieName: "cookieControlPrefs",
+            cookieName: "cookie_control_prefs",
+            cookieStateName: "cookie_control_state",
             className: "c-gdprcookie",
             acceptReload: false,
             acceptCookieByBrowsing: false,
@@ -203,23 +206,24 @@
     setCookieByBrowsing = function() {
 
         var setWaitingCookie = function() {
-            setCookie(settings.cookieName, 'waitForIt');
+            setCookie(settings.cookieStateName, 'waitForIt', settings.expires);
         }
 
         var setAcceptedByBrowsingCookie = function() {
-            var prefs = Array.isArray(settings.acceptAfterBrowsing) ? settings.acceptAfterBrowsing : null;
+            var prefs = Array.isArray(settings.acceptAfterBrowsing) ? settings.acceptAfterBrowsing : null
 
             if(prefs) {
-                setCookie(settings.cookieName, JSON.stringify(prefs), settings.expires);
+                setCookie(settings.cookieName, JSON.stringify(prefs), settings.expires)
             }
         }
 
         if(settings.acceptCookieByBrowsing) {
-            var preferences = getPreferences();
+            var state = getState()
+            var preferences = getPreferences()
 
-            if(preferences == 'waitForIt') {
+            if(state == 'waitForIt' && !preferences) {
                 setAcceptedByBrowsingCookie()
-            } else if (!preferences) {
+            } else if (!state && !preferences) {
                 setWaitingCookie()
             }
         }
@@ -231,7 +235,8 @@
         }
 
         var body = $("body"),
-            myCookiePrefs = getPreferences();
+            myCookiePrefs = getPreferences(),
+            myCookieState = getState();
 
         var elements = {
             container: undefined,
@@ -268,7 +273,7 @@
             myCookiePrefs = undefined;
         }
 
-        if (alwaysShow || !myCookiePrefs) {
+        if (alwaysShow || (!myCookiePrefs && !myCookieState) || myCookieState=='waitForIt') {
             elements.types = $("<ul/>").append(
                 $.map(settings.cookieTypes, function(field, index) {
                     if (!field.type || !field.value) {
@@ -333,6 +338,8 @@
 
                 // Save user cookie preferences (in a cookie!)
                 var prefs = isAdvanced ? prefsFromCheckboxes() : prefsOutsideAdvanced(seenAdvanced ? "After" : "Before");
+
+                setCookie(settings.cookieStateName, 'confirm', settings.expires);
                 setCookie(settings.cookieName, JSON.stringify(prefs), settings.expires);
 
                 // Trigger cookie accept event
